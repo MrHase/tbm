@@ -147,14 +147,22 @@ Install()
 	chmod +x $DST
 	echo "Setup .bashrc"
 	echo "#TBM_BEGIN">>~/.bashrc
-	echo "#TBM_VERSION=0">>~/.bashrc
+	echo "#TBM_VERSION=0.1">>~/.bashrc
 	echo ". $DST nothing" >> ~/.bashrc
+	echo "Set_TBM_Variables() {">> ~/.bashrc
+	#echo "TBM1=\`$DST path 1\`;echo $TBM1;}" >> ~/.bashrc
+	for i in 0 1 2 3 4 5 6 7 8 9 0; do
+		#die for-schleife scheint langsam zu sein!
+		echo "TBM${i}=\`$DST path ${i}\`;" >> ~/.bashrc 
+	done
+	echo "}" >> ~/.bashrc
 	#echo "alias x='. $DST mark'" >> ~/.bashrc
-	echo "x () { . $DST add \$1; }" >> ~/.bashrc
+	echo "x () { . $DST add \$1; Set_TBM_Variables;}" >> ~/.bashrc
 	#echo "alias c='. $DST cd'" >> ~/.bashrc
-	echo "c () { . $DST cd \$1; }" >> ~/.bashrc
-	echo "v () { . $DST ls; }" >> ~/.bashrc
-	echo "tbm() { . $DST $1 $2; }" >> ~/.bashrc
+	echo "#c () { . $DST cd \$1; Set_TBM_Variables;}" >> ~/.bashrc
+	echo "c () { cd \`$DST path \$1\`; Set_TBM_Variables;}" >> ~/.bashrc
+	echo "v () { $DST ls; Set_TBM_Variables;}" >> ~/.bashrc
+	echo "tbm() { $DST \$1 \$2; Set_TBM_Variables;}" >> ~/.bashrc
 	echo "#TBM_END">>~/.bashrc
 	echo "Restart the terminal please!"
 	
