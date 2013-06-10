@@ -4,7 +4,8 @@
 # . ./testscript.sh cd 1
 
 
-declare -A dirs
+#declare -A dirs
+declare dirs
 
 BOOKMARKS="$HOME/.bookmarks"
 
@@ -137,39 +138,63 @@ RemoveFile()
 Install()
 {
 	Uninstall
-	cp ${HOME}/.bashrc ${HOME}/.bashrc_tbm_save
+	
 	DST="$HOME/.config/tbm"
-	#script=`cat $0`
-	#touch $DST
-	#echo $script >> $DST
-	echo "Copy script to $DST"
-	cp $0 $DST
-	chmod +x $DST
-	echo "Setup .bashrc"
-	echo "#TBM_BEGIN">>~/.bashrc
-	echo "#TBM_VERSION=0.1">>~/.bashrc
-	echo ". $DST nothing" >> ~/.bashrc
-	echo "Set_TBM_Variables() {">> ~/.bashrc
-	#echo "TBM1=\`$DST path 1\`;echo $TBM1;}" >> ~/.bashrc
+	OUTPUT="$HOME/.bashrc"
+	
+	echo "Checking OS: `uname`"
+	OS=`uname`
+	
+	if [[ "$OS" == "Darwin" ]]; then
+		echo "I think this is a Mac. .bash_profile is used instead of .bashrc"
+		OUTPUT="$HOME/.bash_profile"
+	fi
+	
+	
+	cp $OUTPUT ${OUTPUT}_tbm_save
+	if [ ! -f $OUTPUT ]; then
+		echo "Error: $OUTPUT does not exist"
+	fi
+	
+
+	
+	SRC=`realpath $0`
+	echo "Copy script from $SRC to $DST"
+	if [[ "$SRC" != "$DST" ]];then
+		#echo "COPY"
+		cp $SRC $DST
+		chmod +x $DST
+	fi
+	
+	echo "Setup $OUTPUT"
+	echo "#TBM_BEGIN">> $OUTPUT
+	echo "#TBM_VERSION=0.1">>$OUTPUT
+	echo ". $DST nothing" >> $OUTPUT
+	echo "Set_TBM_Variables() {">> $OUTPUT
+	#echo "TBM1=\`$DST path 1\`;echo $TBM1;}" >> $OUTPUT
 	for i in 0 1 2 3 4 5 6 7 8 9 0; do
 		#die for-schleife scheint langsam zu sein!
-		echo "TBM${i}=\`$DST path ${i}\`;" >> ~/.bashrc 
+		echo "TBM${i}=\`$DST path ${i}\`;" >> $OUTPUT
 	done
-	echo "}" >> ~/.bashrc
-	#echo "alias x='. $DST mark'" >> ~/.bashrc
-	echo "x () { . $DST add \$1; Set_TBM_Variables;}" >> ~/.bashrc
-	#echo "alias c='. $DST cd'" >> ~/.bashrc
-	echo "#c () { . $DST cd \$1; Set_TBM_Variables;}" >> ~/.bashrc
-	echo "c () { cd \`$DST path \$1\`; Set_TBM_Variables;}" >> ~/.bashrc
-	echo "v () { $DST ls; Set_TBM_Variables;}" >> ~/.bashrc
-	echo "tbm() { $DST \$1 \$2; Set_TBM_Variables;}" >> ~/.bashrc
-	echo "#TBM_END">>~/.bashrc
+	echo "}" >> $OUTPUT
+	#echo "alias x='. $DST mark'" >> $OUTPUT
+	echo "x () { . $DST add \$1; Set_TBM_Variables;}" >> $OUTPUT
+	#echo "alias c='. $DST cd'" >> $OUTPUT
+	echo "#c () { . $DST cd \$1; Set_TBM_Variables;}" >> $OUTPUT
+	echo "c () { cd \`$DST path \$1\`; Set_TBM_Variables;}" >> $OUTPUT
+	echo "v () { $DST ls; Set_TBM_Variables;}" >> $OUTPUT
+	echo "tbm() { $DST \$1 \$2; Set_TBM_Variables;}" >> $OUTPUT
+	echo "#TBM_END">> $OUTPUT
 	echo "Restart the terminal please!"
 	
 }
 
 Uninstall()
 {
+	
+	$OUTPUT=${HOME}/.bashrc
+	
+	echo "Restore $OUTPUT"
 	write="yes"
 	while read -r line; do 
 		if [[ "$line" == "#TBM_BEGIN" ]]; then
