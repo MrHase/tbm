@@ -157,8 +157,13 @@ Install()
 	fi
 	
 
+	if [ `which realpath 2>/dev/null` ];then
+		SRC=`realpath $0`
+	else
+		echo "The program 'realpath' does not exist. This is not fatal, unless you run 'tbm install' from ~/.config/tbm" 
+		SRC=$0
+	fi
 	
-	SRC=`realpath $0`
 	echo "Copy script from $SRC to $DST"
 	if [[ "$SRC" != "$DST" ]];then
 		#echo "COPY"
@@ -168,22 +173,24 @@ Install()
 	
 	echo "Setup $OUTPUT"
 	echo "#TBM_BEGIN">> $OUTPUT
-	echo "#TBM_VERSION=0.1">>$OUTPUT
-	echo ". $DST nothing" >> $OUTPUT
-	echo "Set_TBM_Variables() {">> $OUTPUT
-	#echo "TBM1=\`$DST path 1\`;echo $TBM1;}" >> $OUTPUT
-	for i in 0 1 2 3 4 5 6 7 8 9 0; do
+	echo "#TBM_VERSION=0.2">>$OUTPUT
+	#echo ". $DST nothing" >> $OUTPUT
+	#echo "Set_TBM_Variables() {">> $OUTPUT
+	#for i in 0 1 2 3 4 5 6 7 8 9 0; do
 		#die for-schleife scheint langsam zu sein!
-		echo "TBM${i}=\`$DST path ${i}\`;" >> $OUTPUT
+	#	echo "TBM${i}=\`$DST path ${i}\`;" >> $OUTPUT
+	#done
+	#echo "}" >> $OUTPUT
+	for i in 0 1 2 3 4 5 6 7 8 9 0; do
+		echo "tbm${i} () { return 1; echo \`$DST path ${i}\`; }" >> $OUTPUT
 	done
-	echo "}" >> $OUTPUT
 	#echo "alias x='. $DST mark'" >> $OUTPUT
-	echo "x () { . $DST add \$1; Set_TBM_Variables;}" >> $OUTPUT
+	echo "x () { . $DST add \$1;}" >> $OUTPUT
 	#echo "alias c='. $DST cd'" >> $OUTPUT
-	echo "#c () { . $DST cd \$1; Set_TBM_Variables;}" >> $OUTPUT
-	echo "c () { cd \`$DST path \$1\`; Set_TBM_Variables;}" >> $OUTPUT
-	echo "v () { $DST ls; Set_TBM_Variables;}" >> $OUTPUT
-	echo "tbm() { $DST \$1 \$2; Set_TBM_Variables;}" >> $OUTPUT
+	echo "#c () { . $DST cd \$1;}" >> $OUTPUT
+	echo "c () { cd \`$DST path \$1\`; }" >> $OUTPUT
+	echo "v () { $DST ls;}" >> $OUTPUT
+	echo "tbm() { $DST \$1 \$2;}" >> $OUTPUT
 	echo "#TBM_END">> $OUTPUT
 	echo "Restart the terminal please!"
 	
@@ -192,7 +199,7 @@ Install()
 Uninstall()
 {
 	
-	$OUTPUT=${HOME}/.bashrc
+	OUTPUT="$HOME/.bashrc"
 	
 	echo "Restore $OUTPUT"
 	write="yes"
