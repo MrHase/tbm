@@ -7,7 +7,7 @@
 #declare -A dirs
 declare dirs
 
-BOOKMARKS="$HOME/.bookmarks"
+BOOKMARKS="$HOME/.config/tbm/bookmarks"
 
 List ()
 {
@@ -135,11 +135,22 @@ RemoveFile()
 		rm $1
 	fi	
 }
+RemoveDir()
+{
+	if [ -d "$1" ]; then 
+		if [ -L "$1" ]; then
+			rm "$1"
+		else
+			rmdir "$1"
+		fi
+	fi	
+}
 Install()
 {
 	Uninstall
 	
-	DST="$HOME/.config/tbm"
+	mkdir "$HOME/.config/tbm/"
+	DST="$HOME/.config/tbm/tbm"
 	OUTPUT="$HOME/.bashrc"
 	
 	echo "Checking OS: `uname`"
@@ -182,7 +193,7 @@ Install()
 	#done
 	#echo "}" >> $OUTPUT
 	for i in 0 1 2 3 4 5 6 7 8 9 0; do
-		echo "tbm${i} () { return 1; echo \`$DST path ${i}\`; }" >> $OUTPUT
+		echo "tbm${i} () { echo \`$DST path ${i}\`; }" >> $OUTPUT
 	done
 	#echo "alias x='. $DST mark'" >> $OUTPUT
 	echo "x () { . $DST add \$1;}" >> $OUTPUT
@@ -220,8 +231,10 @@ Uninstall()
 	RemoveFile ${HOME}/.bashrc_tbm_uninstall
 
 	echo "Removing tbm and bookmarks"
-	RemoveFile ${HOME}/.config/tbm
-	RemoveFile ${HOME}/.bookmarks
+	RemoveFile ${HOME}/.config/tbm/tbm
+	RemoveFile ${HOME}/.config/tbm/bookmarks
+	RemoveDir rmdir ${HOME}/.config/tbm
+
 	echo "Done! Restart your terminal, please!"	
 }
 
@@ -247,10 +260,10 @@ Help ()
 	echo "   x [nr]           - tbm add [nr]"
 	echo "   c [nr]           - tbm cd [nr]"
 	echo ""
-	echo "Bash variables with access to the bookmarks: "
-	echo "   TBM1,TBM2,....,TBM0 variables provide access to the bookmarked paths"
+	echo "Bash functions with access to the bookmarks: "
+	echo "   tbm1,tmb2,....,tbm0 variables provide access to the bookmarked paths"
 	echo "   For example: "
-	echo "   ls \$TBM1 -> list the directory stored in bookmark 1" 
+	echo "   ls \`tbm1\` -> list the directory stored in bookmark 1" 
 }
 
 #clear the dirs map and reload ist from file
